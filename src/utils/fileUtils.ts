@@ -6,69 +6,64 @@ export interface ExtractedOwner {
   phone: string;
 }
 
-export const readPdfText = async (file: File): Promise<string> => {
-  // This is a simulation since we can't actually parse PDFs in the browser without a library
-  // In a real implementation, you'd use a PDF parsing library or API
-  return new Promise((resolve) => {
-    // Simulate PDF text extraction with a delay
-    setTimeout(() => {
-      // Sample mock data that matches our regex patterns
-      const mockText = `
-        Listagem de Proprietários
-        
-        Proprietário: João da Silva
-        CPF: 123.456.789-00
-        Telefone: (51) 98765-4321
-        E-mail: joao@example.com
-        
-        Proprietário: Maria Oliveira
-        CPF: 987.654.321-00
-        Celular: (51) 91234-5678
-        E-mail: maria@example.com
-        
-        Proprietário: Carlos Santos
-        CPF: 456.789.123-00
-        Telefone: (51) 3234-5678
-        E-mail: carlos@example.com
-      `;
-      resolve(mockText);
-    }, 1500);
+export interface ExtractionResponse {
+  extraction_id: string;
+  message: string;
+  count: number;
+}
+
+// API base URL
+const API_BASE_URL = "https://api.infra.andersonnunes.net";
+
+export const uploadPdfForProcessing = async (file: File): Promise<ExtractionResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${API_BASE_URL}/extract`, {
+    method: 'POST',
+    body: formData
   });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Error uploading PDF");
+  }
+
+  return response.json();
+};
+
+export const getExtractionResults = async (extractionId: string): Promise<ExtractedOwner[]> => {
+  const response = await fetch(`${API_BASE_URL}/results/${extractionId}`);
+  
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || "Error fetching results");
+  }
+  
+  const results = await response.json();
+  
+  // Map API response to our ExtractedOwner format
+  return results.map((item: any) => ({
+    name: item.owner_name || "",
+    phone: item.phone || ""
+  }));
+};
+
+export const readPdfText = async (file: File): Promise<string> => {
+  // This function is kept for compatibility but will be deprecated
+  console.warn("readPdfText is deprecated - use uploadPdfForProcessing instead");
+  
+  // Return empty string as we're not actually reading the PDF text client-side anymore
+  return "";
 };
 
 export const extractOwnersData = (
   pdfText: string,
   providerId: string
 ): ExtractedOwner[] => {
-  const provider = providers.find((p) => p.id === providerId);
-  
-  if (!provider) {
-    throw new Error(`Provider "${providerId}" not found`);
-  }
-
-  // In a real implementation, you would need a more sophisticated approach
-  // This is a simplified version for demonstration purposes
-  
-  // Split the text into blocks, each representing a different owner
-  const blocks = pdfText.split(/\n\s*\n/).filter(block => block.trim());
-  
-  const extractedOwners: ExtractedOwner[] = [];
-  
-  for (const block of blocks) {
-    const nameMatch = block.match(provider.patterns.name);
-    const phoneMatch = block.match(provider.patterns.phone);
-    
-    if (nameMatch && nameMatch[1]) {
-      const extractedOwner: ExtractedOwner = {
-        name: nameMatch[1].trim(),
-        phone: phoneMatch && phoneMatch[1] ? phoneMatch[1].trim() : ""
-      };
-      
-      extractedOwners.push(extractedOwner);
-    }
-  }
-  
-  return extractedOwners;
+  // This function is kept for compatibility but will be deprecated
+  console.warn("extractOwnersData is deprecated - use API extraction instead");
+  return [];
 };
 
 export const generateCsv = (data: ExtractedOwner[]): string => {

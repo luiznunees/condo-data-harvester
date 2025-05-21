@@ -1,11 +1,10 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import FileUploader from "@/components/FileUploader";
 import ProviderSelector from "@/components/ProviderSelector";
 import ProcessingIndicator from "@/components/ProcessingIndicator";
 import ResultsTable from "@/components/ResultsTable";
-import { ExtractedOwner, extractOwnersData, readPdfText } from "@/utils/fileUtils";
+import { ExtractedOwner, uploadPdfForProcessing, getExtractionResults } from "@/utils/fileUtils";
 import { useToast } from "@/hooks/use-toast";
 
 enum ProcessingStatus {
@@ -20,12 +19,14 @@ const Index = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedProvider, setSelectedProvider] = useState<string>("guarida");
   const [extractedData, setExtractedData] = useState<ExtractedOwner[]>([]);
+  const [extractionId, setExtractionId] = useState<string>("");
   const { toast } = useToast();
 
   const handleFileSelected = (file: File) => {
     setSelectedFile(file);
     setStatus(ProcessingStatus.IDLE);
     setExtractedData([]);
+    setExtractionId("");
   };
 
   const handleProviderChange = (providerId: string) => {
@@ -45,11 +46,12 @@ const Index = () => {
     try {
       setStatus(ProcessingStatus.PROCESSING);
       
-      // Read PDF text
-      const pdfText = await readPdfText(selectedFile);
+      // Upload PDF for processing
+      const extractionResponse = await uploadPdfForProcessing(selectedFile);
+      setExtractionId(extractionResponse.extraction_id);
       
-      // Extract data based on selected provider
-      const owners = extractOwnersData(pdfText, selectedProvider);
+      // Fetch results with the returned extraction ID
+      const owners = await getExtractionResults(extractionResponse.extraction_id);
       
       if (owners.length === 0) {
         toast({
@@ -70,7 +72,7 @@ const Index = () => {
       console.error("Error processing file:", error);
       toast({
         title: "Erro no processamento",
-        description: "Ocorreu um erro ao processar o arquivo. Por favor, tente novamente.",
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao processar o arquivo. Por favor, tente novamente.",
         variant: "destructive",
       });
       setStatus(ProcessingStatus.ERROR);
@@ -196,7 +198,7 @@ const Index = () => {
             <li>Visualize os dados extraídos e faça o download em formato CSV</li>
           </ol>
           <p className="mt-4">
-            Versão 1.0 - Sistema otimizado para listagens da Guarida
+            Versão 1.0 - Integrado com API de extração
           </p>
         </div>
       </main>
