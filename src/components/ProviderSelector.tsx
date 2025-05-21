@@ -32,12 +32,16 @@ const ProviderSelector = ({ onProviderChange, disabled = false }: ProviderSelect
         value={selectedProvider}
         onValueChange={handleChange}
       >
-        <SelectTrigger id="provider-select" className="w-full">
+        <SelectTrigger id="provider-select" className="w-full bg-white shadow-sm">
           <SelectValue placeholder="Selecione um provedor" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="bg-white shadow-md">
           {providers.map((provider) => (
-            <SelectItem key={provider.id} value={provider.id}>
+            <SelectItem 
+              key={provider.id} 
+              value={provider.id}
+              className="cursor-pointer"
+            >
               {provider.name}
             </SelectItem>
           ))}

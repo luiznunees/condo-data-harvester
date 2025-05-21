@@ -3,6 +3,7 @@ import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 interface FileUploaderProps {
   onFileSelected: (file: File) => void;
@@ -89,43 +90,48 @@ const FileUploader = ({
 
   return (
     <div className="w-full">
-      <div
+      <motion.div
+        whileHover={{ scale: 1.01 }}
         className={cn(
-          "drop-area p-8 flex flex-col items-center justify-center text-center cursor-pointer",
-          isDragging && "active"
+          "drop-area p-8 flex flex-col items-center justify-center text-center cursor-pointer rounded-lg border-2 border-dashed transition-all",
+          isDragging 
+            ? "border-primary bg-primary/5" 
+            : "border-gray-200 hover:border-primary/50 hover:bg-gray-50"
         )}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={handleButtonClick}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="48"
-          height="48"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="text-primary mb-4"
-        >
-          <path d="M2 9V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1" />
-          <path d="M12 13v9" />
-          <path d="m9 16 3-3 3 3" />
-        </svg>
+        <div className="p-4 rounded-full bg-primary/10 mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-primary"
+          >
+            <path d="M2 9V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1" />
+            <path d="M12 13v9" />
+            <path d="m9 16 3-3 3 3" />
+          </svg>
+        </div>
 
         <h3 className="text-lg font-semibold mb-2">
           Arraste e solte seu arquivo PDF aqui
         </h3>
-        <p className="text-muted-foreground mb-4">
+        <p className="text-muted-foreground mb-5">
           ou clique para selecionar um arquivo
         </p>
-        <Button type="button" className="mb-2">
+        <Button type="button" className="mb-2 shadow-sm">
           Selecionar Arquivo
         </Button>
-        <p className="text-xs text-muted-foreground">Somente arquivos PDF (máx. {maxSize / 1024 / 1024}MB)</p>
+        <p className="text-xs text-muted-foreground mt-3">Somente arquivos PDF (máx. {maxSize / 1024 / 1024}MB)</p>
 
         <input
           type="file"
@@ -134,10 +140,15 @@ const FileUploader = ({
           accept={accept}
           className="hidden"
         />
-      </div>
+      </motion.div>
 
       {fileName && (
-        <div className="mt-4 p-3 bg-secondary rounded-md flex items-center">
+        <motion.div 
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="mt-4 p-3.5 bg-primary/5 rounded-md flex items-center border border-primary/20"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -154,7 +165,7 @@ const FileUploader = ({
             <polyline points="14 2 14 8 20 8" />
           </svg>
           <span className="font-medium text-sm truncate">{fileName}</span>
-        </div>
+        </motion.div>
       )}
     </div>
   );

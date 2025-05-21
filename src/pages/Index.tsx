@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import FileUploader from "@/components/FileUploader";
@@ -6,6 +7,7 @@ import ProcessingIndicator from "@/components/ProcessingIndicator";
 import ResultsTable from "@/components/ResultsTable";
 import { ExtractedOwner, uploadPdfForProcessing, getExtractionResults } from "@/utils/fileUtils";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 enum ProcessingStatus {
   IDLE,
@@ -92,7 +94,12 @@ const Index = () => {
         ) : null;
       case ProcessingStatus.ERROR:
         return (
-          <div className="w-full py-8 text-center">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="w-full py-8 text-center"
+          >
             <div className="text-destructive mb-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -121,29 +128,45 @@ const Index = () => {
             >
               Tentar novamente
             </button>
-          </div>
+          </motion.div>
         );
       default:
         return (
-          <div className="w-full space-y-6">
-            <FileUploader onFileSelected={handleFileSelected} />
+          <div className="w-full space-y-8">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <FileUploader onFileSelected={handleFileSelected} />
+            </motion.div>
             
-            <div className="pt-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="pt-4"
+            >
               <ProviderSelector 
                 onProviderChange={handleProviderChange}
                 disabled={!selectedFile}
               />
-            </div>
+            </motion.div>
             
             {selectedFile && (
-              <div className="pt-4 flex justify-center">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+                className="pt-6 flex justify-center"
+              >
                 <button
                   onClick={handleProcessFile}
-                  className="bg-primary text-primary-foreground px-6 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  className="bg-primary text-primary-foreground px-6 py-2.5 rounded-md font-medium hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 shadow-sm hover:shadow-md"
                 >
                   Processar Arquivo
                 </button>
-              </div>
+              </motion.div>
             )}
           </div>
         );
@@ -151,14 +174,14 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <header className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center">
           <div className="flex items-center text-primary">
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
-              width="24" 
-              height="24" 
+              width="28" 
+              height="28" 
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="currentColor" 
@@ -173,34 +196,49 @@ const Index = () => {
               <path d="M8 8h.01"></path>
               <path d="M8 13h.01"></path>
             </svg>
-            <h1 className="text-xl font-bold">Extrator de Dados Imobiliários</h1>
+            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+              Extrator de Dados Imobiliários
+            </h1>
           </div>
         </div>
       </header>
       
-      <main className="container mx-auto px-4 py-8">
-        <Card className="max-w-3xl mx-auto shadow-md">
-          <CardHeader>
-            <CardTitle>Extrator de Dados de Proprietários</CardTitle>
-            <CardDescription>
-              Faça upload de um arquivo PDF de listagem imobiliária para extrair informações de proprietários
-            </CardDescription>
-          </CardHeader>
-          <CardContent>{renderContent()}</CardContent>
-        </Card>
+      <main className="container mx-auto px-4 py-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="max-w-3xl mx-auto shadow-lg border-opacity-50 overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent">
+              <CardTitle className="text-2xl">Extrator de Dados de Proprietários</CardTitle>
+              <CardDescription className="text-base">
+                Faça upload de um arquivo PDF de listagem imobiliária para extrair informações de proprietários
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">{renderContent()}</CardContent>
+          </Card>
+        </motion.div>
         
-        <div className="max-w-3xl mx-auto mt-8 text-center text-sm text-muted-foreground">
-          <h3 className="font-medium mb-2">Como utilizar:</h3>
-          <ol className="text-left list-decimal pl-5 space-y-2">
-            <li>Faça upload de um arquivo PDF contendo a listagem de imóveis</li>
-            <li>Selecione o provedor da listagem (ex: Guarida, Auxiliadora Predial)</li>
-            <li>Clique em "Processar Arquivo" para iniciar a extração</li>
-            <li>Visualize os dados extraídos e faça o download em formato CSV</li>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="max-w-3xl mx-auto mt-10 text-center text-sm text-muted-foreground bg-white rounded-lg shadow-sm p-6"
+        >
+          <h3 className="font-medium mb-4 text-lg text-foreground">Como utilizar:</h3>
+          <ol className="text-left list-decimal pl-5 space-y-3">
+            <li className="p-1">Faça upload de um arquivo PDF contendo a listagem de imóveis</li>
+            <li className="p-1">Selecione o provedor da listagem (ex: Guarida, Auxiliadora Predial)</li>
+            <li className="p-1">Clique em "Processar Arquivo" para iniciar a extração</li>
+            <li className="p-1">Visualize os dados extraídos e faça o download em formato CSV</li>
           </ol>
-          <p className="mt-4">
-            Versão 1.0 - Integrado com API de extração
-          </p>
-        </div>
+          <div className="mt-6 pt-4 border-t border-gray-100">
+            <p className="text-xs text-muted-foreground/80">
+              Versão 1.0 - Integrado com API de extração
+            </p>
+          </div>
+        </motion.div>
       </main>
     </div>
   );

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ExtractedOwner, downloadCsv, generateCsv } from "@/utils/fileUtils";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 interface ResultsTableProps {
   data: ExtractedOwner[];
@@ -35,11 +36,34 @@ const ResultsTable = ({ data, fileName }: ResultsTableProps) => {
     }
   };
 
+  const tableVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const rowVariants = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Dados Extraídos</h3>
-        <Button onClick={handleDownload}>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="w-full"
+    >
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-semibold">Dados Extraídos</h3>
+        <Button 
+          onClick={handleDownload}
+          className="shadow-sm hover:shadow-md transition-shadow"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -60,37 +84,53 @@ const ResultsTable = ({ data, fileName }: ResultsTableProps) => {
         </Button>
       </div>
       
-      <div className="border rounded-md">
+      <div className="border rounded-lg overflow-hidden shadow-sm">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead>Nome do Proprietário</TableHead>
-              <TableHead>Celular</TableHead>
+              <TableHead className="font-semibold">Nome do Proprietário</TableHead>
+              <TableHead className="font-semibold">Celular</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <motion.tbody
+            variants={tableVariants}
+            initial="hidden"
+            animate="show"
+            className="divide-y"
+          >
             {data.length > 0 ? (
               data.map((owner, index) => (
-                <TableRow key={index}>
-                  <TableCell>{owner.name}</TableCell>
-                  <TableCell>{owner.phone}</TableCell>
-                </TableRow>
+                <motion.tr 
+                  key={index}
+                  variants={rowVariants}
+                  className="bg-card hover:bg-muted/20 transition-colors"
+                >
+                  <TableCell className="py-3">{owner.name}</TableCell>
+                  <TableCell className="py-3">{owner.phone}</TableCell>
+                </motion.tr>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={2} className="text-center py-4 text-muted-foreground">
+                <TableCell colSpan={2} className="text-center py-8 text-muted-foreground">
                   Nenhum dado encontrado
                 </TableCell>
               </TableRow>
             )}
-          </TableBody>
+          </motion.tbody>
         </Table>
       </div>
       
-      <p className="mt-2 text-xs text-muted-foreground">
-        Total de proprietários encontrados: {data.length}
-      </p>
-    </div>
+      <div className="mt-4 bg-primary/5 p-3 rounded-md flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Total de proprietários encontrados: <span className="font-semibold text-foreground">{data.length}</span>
+        </p>
+        {data.length > 0 && (
+          <span className="text-sm text-primary font-medium">
+            Pronto para download
+          </span>
+        )}
+      </div>
+    </motion.div>
   );
 };
 
